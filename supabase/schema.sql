@@ -222,8 +222,7 @@ begin
   return new;
 end $$;
 
-drop trigger if exists on_auth_user_created on auth.users;
-create trigger on_auth_user_created after insert on auth.users
+create or replace trigger on_auth_user_created after insert on auth.users
   for each row execute function public.handle_new_user();
 
 -- Profiles for anyone who signed up before this script ran
@@ -240,8 +239,7 @@ begin
   new.created_at := now();
   return new;
 end $$;
-drop trigger if exists comments_author on public.comments;
-create trigger comments_author before insert on public.comments
+create or replace trigger comments_author before insert on public.comments
   for each row execute function public.comment_author();
 
 -- ---------- Row-level security ----------
@@ -481,6 +479,9 @@ grant execute on function public.join_course(text), public.enrol_open(uuid), pub
   public.complete_lesson(uuid), public.claim_certificate(uuid) to authenticated;
 revoke execute on function public.join_course(text), public.enrol_open(uuid), public.submit_quiz(uuid, jsonb),
   public.complete_lesson(uuid), public.claim_certificate(uuid) from public, anon;
+-- Trigger helpers are never called directly
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
+revoke execute on function public.comment_author() from public, anon, authenticated;
 
 -- ---------- File storage for lesson materials ----------
 
