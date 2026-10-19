@@ -302,10 +302,11 @@ async function paint(){
   if (window.matchMedia("(max-width:1079px)").matches) $("out").scrollIntoView({ behavior:"smooth", block:"start" });
   ctl = new AbortController();
   try {
-    const { text, truncated } = await sample(buildPrompt(), { signal:ctl.signal, onText: ({text}) => { ({title, parts} = parse(text)); show(); } });
+    let left = null;
+    const { text, truncated } = await sample(buildPrompt(), { signal:ctl.signal, onTrial: n => left = n, onText: ({text}) => { ({title, parts} = parse(text)); show(); } });
     ({title, parts} = parse(text)); show();
     setStatus(truncated ? "The lesson was cut short. Try fewer wells or a shorter article." : "Lesson painted.");
-    if (await saveClassFromStudio(true)) setStatus((truncated ? "The lesson was cut short, but it's saved. " : "Lesson painted and saved to My classes. ") + "Open slides to edit it, or add it to a course.");
+    if (await saveClassFromStudio(true)) setStatus((truncated ? "The lesson was cut short, but it's saved. " : "Lesson painted and saved to My classes. ") + "Open slides to edit it, or add it to a course." + (left !== null ? ` Free AI uses left today: ${left}.` : ""));
   } catch(e) {
     if (e && e.text) ({title, parts} = parse(e.text));
     if (!parts.length && !title) { $("out").className="empty"; $("out").textContent="No lesson yet."; } else show();

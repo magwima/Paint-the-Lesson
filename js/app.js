@@ -1,7 +1,7 @@
 // Teacher app: sign-in, profile and AI settings, and the page router.
 import { $, esc, SECTIONS, ICONS, toast, slugify, armed } from "./core.js";
 import { sb, signIn, loadProfile, friendly, signOut, uploadFile, site } from "./supa.js";
-import { PROVIDERS, getAI, setAI, clearAI, testAI } from "./ai.js";
+import { PROVIDERS, getAI, setAI, clearAI, testAI, trialStatus } from "./ai.js";
 import { initStudio, renderLibrary, studioKeyChanged } from "./studio.js";
 import { initCourses, renderCourses, renderCourse, renderLessonEditor, renderCalendar, addToCourse, lessonDirty } from "./courses.js";
 
@@ -82,7 +82,7 @@ function renderProfile(onboarding){
   const p = profile || {}, ai = getAI();
   const v = $("vProfile");
   v.innerHTML = `<header class="page-head"><div><h1>${onboarding ? "Welcome. Set up your profile." : "Your profile."}</h1>
-    <p>${onboarding ? "Check your details and add an AI key, then paint your first lesson." : "How you appear to students, and the AI that paints your lessons."}</p></div></header>
+    <p>${onboarding ? "Check your details, then paint your first lesson. The free AI trial is ready; no key needed." : "How you appear to students, and the AI that paints your lessons."}</p></div></header>
   <div class="profile-grid">
   <section class="paper profile-card" aria-label="Profile">
     <h2 class="le-h">About you</h2>
@@ -103,18 +103,20 @@ function renderProfile(onboarding){
     <div class="field"><label for="pfSlug">Your teacher page</label><div class="slug"><span>${esc(site("teacher.html"))}?t=</span><input id="pfSlug" type="text" maxlength="40" value="${esc(p.slug || "")}" placeholder="${esc(slugify(p.name || "my-name"))}"></div>
       <p class="hint-line">${p.slug ? `<a href="teacher.html?t=${encodeURIComponent(p.slug)}" target="_blank" rel="noopener">Open your teacher page</a> · it lists your published courses.` : "Choose a short name to get a public page listing your published courses."}</p></div>
     <p class="mx-err" id="pfMsg" role="alert"></p>
-    <div class="mx-actions"><button class="mx-save" id="pfSave">${onboarding ? "Save and continue" : "Save profile"}</button></div>
+    <div class="mx-actions"><button class="mx-save" id="pfSave">${onboarding ? "Save and continue" : "Save profile"}</button>${onboarding ? `<button class="mx-ghost" id="pfSkip" type="button">Skip for now</button>` : ""}</div>
   </section>
   <section class="paper profile-card" aria-label="AI">
     <h2 class="le-h">AI</h2>
-    <p class="hint-line big">Paint the Lesson writes with your own AI key. It stays in this browser and goes only to the AI company you choose, never to our database. Google Gemini gives free keys.</p>
+    <p class="hint-line big">Start with the free trial: no key needed, with a daily limit. For unlimited use, add your own key. It stays in this browser and goes only to the AI company you choose, never to our database. Google Gemini gives free keys.</p>
     <div class="field"><p class="group-label">Provider</p><div class="swatches" id="aiProv">${Object.entries(PROVIDERS).map(([k,x]) => `<button class="swatch" type="button" data-prov="${k}" aria-pressed="${k === ai.provider}">${esc(x.name)}</button>`).join("")}</div></div>
     <ol class="key-steps" id="aiSteps"></ol>
+    <div id="aiKeyFields">
     <div class="field"><label for="aiKey">API key</label><div class="ask"><input id="aiKey" type="password" autocomplete="off" spellcheck="false" value="${esc(ai.key)}" placeholder="Paste your key"><button class="mx-ghost" id="aiShow" type="button">Show</button></div></div>
     <div class="field"><label for="aiModel">Model</label><input id="aiModel" type="text" list="aiModels" value="${esc(ai.model)}"><datalist id="aiModels"></datalist>
       <p class="hint-line" id="aiModelHint"></p></div>
+    </div>
     <p class="mx-err" id="aiMsg" role="status" aria-live="polite"></p>
-    <div class="mx-actions"><button class="mx-save" id="aiSave">Save and test</button><span class="sep"></span><button class="mx-ghost danger" id="aiForget" type="button">Remove key from this browser</button></div>
+    <div class="mx-actions"><button class="mx-save" id="aiSave">${ai.provider === "trial" ? "Use the free trial" : "Save and test"}</button><span class="sep"></span><button class="mx-ghost danger" id="aiForget" type="button">Remove key from this browser</button></div>
   </section>
   ${onboarding ? "" : `<section class="paper profile-card" aria-label="Account">
     <h2 class="le-h">Account</h2>
@@ -150,10 +152,20 @@ function renderProfile(onboarding){
     profile = data; paintNav(); toast("Profile saved.");
     if (onboarding) go("studio"); else renderProfile(false);
   });
+  const skip = $("pfSkip"); if (skip) skip.addEventListener("click", () => go("studio"));
   // AI
   let prov = ai.provider;
   const drawSteps = () => {
     const P = PROVIDERS[prov];
+    $("aiKeyFields").hidden = prov === "trial"; $("aiForget").hidden = prov === "trial";
+    $("aiSave").textContent = prov === "trial" ? "Use the free trial" : "Save and test";
+    if (prov === "trial") {
+      $("aiSteps").innerHTML = `<li>Nothing to set up. Paint lessons and use every AI button straight away.</li><li id="trialLeft">Checking today's free uses…</li>`;
+      trialStatus().then(t => { const el = $("trialLeft"); if (!el) return;
+        el.textContent = !t || !t.enabled ? "The free trial is paused right now. Add your own key to keep painting." : `${Math.max(0, t.limit - t.used)} of ${t.limit} free AI uses left today. One lesson, repaint, quiz or feedback uses one.`; })
+        .catch(() => { const el = $("trialLeft"); if (el) el.textContent = "Couldn't check today's free uses."; });
+      return;
+    }
     $("aiSteps").innerHTML = prov === "gemini"
       ? `<li>Open <a href="${P.keyUrl}" target="_blank" rel="noopener">Google AI Studio</a> and sign in with a Google account.</li><li>Press <b>Create API key</b>, then copy it.</li><li>Paste it below and press <b>Save and test</b>.</li>`
       : `<li>Open <a href="${P.keyUrl}" target="_blank" rel="noopener">${esc(P.name)} keys</a> and create a key. ${esc(P.name)} charges for use.</li><li>Paste it below and press <b>Save and test</b>.</li>`;
@@ -169,6 +181,7 @@ function renderProfile(onboarding){
   $("aiSave").addEventListener("click", async () => {
     const key = $("aiKey").value.trim(), model = $("aiModel").value.trim() || PROVIDERS[prov].def, msg = $("aiMsg");
     msg.classList.remove("err","ok");
+    if (prov === "trial") { setAI({ provider:"trial", key:"", model:"" }); msg.textContent = "You're on the free trial. Ready to paint."; msg.classList.add("ok"); studioKeyChanged(); return; }
     if (!key) { msg.textContent = "Paste your key first."; msg.classList.add("err"); return; }
     $("aiSave").disabled = true; msg.textContent = "Testing your key…";
     try {
@@ -184,7 +197,7 @@ function renderProfile(onboarding){
       if (e.code !== "bad_key") { setAI({ provider:prov, key, model }); studioKeyChanged(); }
     } finally { $("aiSave").disabled = false; }
   });
-  $("aiForget").addEventListener("click", () => { clearAI(); $("aiKey").value = ""; $("aiMsg").textContent = "Key removed from this browser."; studioKeyChanged(); });
+  $("aiForget").addEventListener("click", () => { clearAI(); $("aiKey").value = ""; $("aiMsg").textContent = "Key removed from this browser. You're back on the free trial."; studioKeyChanged(); renderProfile(onboarding); });
   if (!onboarding) {
     $("pfOut").addEventListener("click", signOut);
     armed($("pfDel"), "Delete every class, folder and course for good?", async () => {
@@ -210,7 +223,7 @@ function renderProfile(onboarding){
   initStudio(ctx); initCourses(ctx);
   const firstTime = !localStorage.getItem("ptl:seen:" + user.id);
   if (firstTime) { try { localStorage.setItem("ptl:seen:" + user.id, "1"); } catch(e) {} }
-  if (firstTime && !getAI().key) { showView("profile"); renderProfile(true); return; }
+  if (firstTime && !profile.slug && !profile.bio) { showView("profile"); renderProfile(true); return; }
   route();
 })();
 sb.auth.onAuthStateChange(ev => { if (ev === "SIGNED_OUT") location.reload(); });

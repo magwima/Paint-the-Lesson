@@ -32,7 +32,9 @@ Optional:
 Repository **Settings → Pages** → **Deploy from a branch** → `main` / `(root)` → **Save**.
 
 ## AI
-Each teacher pastes their own key in **Profile → AI**. Google Gemini keys are free (https://aistudio.google.com/app/apikey). OpenAI and Anthropic keys also work. The key stays in the teacher's browser; it is never stored in the database. Students don't need a key.
+**Free trial (no key):** teachers without a key use the Supabase Edge Function `ai-trial`, which calls Claude with the secret `ANTHROPIC_API_KEY` (or Gemini with `GEMINI_API_KEY` if no Claude key is set). Daily limits are in the table `ai_trial_settings` (`per_user_daily`, `global_daily`, `enabled`); change them in Supabase → Table Editor.
+
+**Own key:** a teacher can paste their own key in **Profile → AI** for unlimited use. Google Gemini keys are free (https://aistudio.google.com/app/apikey). OpenAI and Anthropic keys also work. The key stays in the teacher's browser; it is never stored in the database. Students don't need a key.
 
 ## Keys and safety
 `js/config.js` holds the project URL and the **anon** key. That key is public by design; the row-level security in `schema.sql` decides what each person can see. **Never** put the `service_role` key in this repository.

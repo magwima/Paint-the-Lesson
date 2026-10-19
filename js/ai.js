@@ -1,6 +1,9 @@
-// AI writing with the teacher's own key. The key is kept only in this browser.
+// AI writing: the free trial (the site's key, via a Supabase function) or the teacher's own key, kept only in this browser.
+import { sb } from "./supa.js";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
 
 export const PROVIDERS = {
+  trial:{ name:"Free trial", note:"No key needed", keyUrl:"", models:[], def:"" },
   gemini:{ name:"Google Gemini", note:"Free keys available", keyUrl:"https://aistudio.google.com/app/apikey",
            models:["gemini-2.5-flash","gemini-2.5-pro","gemini-2.5-flash-lite"], def:"gemini-2.5-flash" },
   openai:{ name:"OpenAI", note:"Paid", keyUrl:"https://platform.openai.com/api-keys",
@@ -11,11 +14,13 @@ export const PROVIDERS = {
 const KEY = "ptl:ai";
 export function getAI(){
   try { const v = JSON.parse(localStorage.getItem(KEY) || "{}"); if (PROVIDERS[v.provider]) return { provider:v.provider, model:v.model || PROVIDERS[v.provider].def, key:v.key || "" }; } catch(e) {}
-  return { provider:"gemini", model:PROVIDERS.gemini.def, key:"" };
+  return { provider:"trial", model:"", key:"" };
 }
 export function setAI(v){ try { localStorage.setItem(KEY, JSON.stringify(v)); } catch(e) {} }
 export function clearAI(){ try { localStorage.removeItem(KEY); } catch(e) {} }
-export const hasAI = () => !!getAI().key;
+export const hasAI = () => { const a = getAI(); return a.provider === "trial" || !!a.key; };
+export const usingTrial = () => getAI().provider === "trial";
+export async function trialStatus(){ const { data, error } = await sb.rpc("my_trial_status"); if (error) throw error; return data; }
 
 export const ERR = {
   no_key:"Add your AI key first: open your profile and paste it under AI.",
@@ -26,7 +31,11 @@ export const ERR = {
   refused:"The AI wouldn't write this lesson. Try a different text.",
   empty_completion:"Nothing came back. Try again.",
   upstream_error:"The connection to the AI dropped. What arrived is kept; try again.",
-  invalid_json:"The AI answer didn't come back in the right shape. Try again."
+  invalid_json:"The AI answer didn't come back in the right shape. Try again.",
+  trial_used:"You've used today's free AI. Come back tomorrow, or add your own AI key in your profile (Google Gemini keys are free).",
+  trial_busy:"The free AI is very busy today. Try again later, or add your own AI key in your profile (Google Gemini keys are free).",
+  trial_off:"The free AI trial isn't switched on yet. Add your own AI key in your profile (Google Gemini keys are free).",
+  not_signed_in:"Your session ended. Sign in again, then retry."
 };
 
 function fail(code, text, detail){ const e = new Error(code); e.code = code; e.text = text || ""; e.detail = detail || ""; return e; }
@@ -65,6 +74,9 @@ async function streamGemini(cfg, prompt, opt, push){
     body:JSON.stringify({ contents:[{ role:"user", parts:[{ text:prompt }] }],
       generationConfig:{ temperature: opt.json ? 0.4 : 0.85, maxOutputTokens:32768, ...(opt.json ? { responseMimeType:"application/json" } : {}) } }) });
   if (!res.ok) throw await httpError(res);
+  return parseGemini(res, opt, push);
+}
+async function parseGemini(res, opt, push){
   let finish = "";
   await readSSE(res, d => {
     if (d.promptFeedback && d.promptFeedback.blockReason) throw fail("refused");
@@ -90,6 +102,9 @@ async function streamAnthropic(cfg, prompt, opt, push){
     headers:{ "Content-Type":"application/json", "x-api-key":cfg.key, "anthropic-version":"2023-06-01", "anthropic-dangerous-direct-browser-access":"true" },
     body:JSON.stringify({ model:cfg.model, max_tokens:16000, stream:true, messages:[{ role:"user", content:prompt }] }) });
   if (!res.ok) throw await httpError(res);
+  return parseAnthropic(res, opt, push);
+}
+async function parseAnthropic(res, opt, push){
   let stop = "";
   await readSSE(res, d => {
     if (d.type === "content_block_delta" && d.delta && d.delta.text) push(d.delta.text);
@@ -98,12 +113,26 @@ async function streamAnthropic(cfg, prompt, opt, push){
   }, opt.signal);
   return { truncated: stop === "max_tokens", refused: stop === "refusal" };
 }
-const RUN = { gemini:streamGemini, openai:streamOpenAI, anthropic:streamAnthropic };
+async function streamTrial(cfg, prompt, opt, push){
+  const { data } = await sb.auth.getSession();
+  if (!data.session) throw fail("not_signed_in");
+  const res = await fetch(SUPABASE_URL + "/functions/v1/ai-trial", { method:"POST", signal:opt.signal,
+    headers:{ "Content-Type":"application/json", "Authorization":"Bearer " + data.session.access_token, "apikey":SUPABASE_ANON_KEY },
+    body:JSON.stringify({ prompt, json:!!opt.json }) });
+  if (!res.ok) {
+    let code = "upstream_error"; try { code = (await res.json()).error || code; } catch(e) {}
+    if (res.status === 404) code = "trial_off";
+    throw fail(ERR[code] ? code : "upstream_error");
+  }
+  const left = res.headers.get("x-trial-left"); if (left !== null && opt.onTrial) opt.onTrial(+left);
+  return res.headers.get("x-ai-provider") === "anthropic" ? parseAnthropic(res, opt, push) : parseGemini(res, opt, push);
+}
+const RUN = { trial:streamTrial, gemini:streamGemini, openai:streamOpenAI, anthropic:streamAnthropic };
 
 // Same shape as before: resolves { text, truncated }; throws { code, text }
 export async function sample(prompt, opt = {}){
   const cfg = getAI();
-  if (!cfg.key) throw fail("no_key");
+  if (cfg.provider !== "trial" && !cfg.key) throw fail("no_key");
   let text = "";
   const push = t => { text += t; if (opt.onText) opt.onText({ text }); };
   try {
@@ -128,6 +157,7 @@ sample.json = async (prompt, opt = {}) => parseJSON((await sample(prompt + "\n\n
 
 // Check a key and list models the key can use
 export async function testAI(cfg){
+  if (cfg.provider === "trial") return [];
   if (cfg.provider === "gemini") {
     const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200", { headers:{ "x-goog-api-key":cfg.key } });
     if (!res.ok) throw await httpError(res);
