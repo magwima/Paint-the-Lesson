@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Paint the Lesson: teacher studio</title>
+<meta name="description" content="Paint English lessons from any text, build courses, invite students and follow their progress.">
+<meta name="theme-color" content="#E6E3DE">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,400;1,7..72,600;1,7..72,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/ptl.css">
+<script type="module" src="js/app.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="gate" id="vGate">
+  <div class="paint-bg" id="paintBg" aria-hidden="true"></div>
+  <div class="gate-card paper" id="authMount"><p class="brand">Paint the Lesson</p><p class="gate-lead">Opening your studio…</p></div>
+</div>
+
+<div class="wrap" id="appWrap" hidden>
+  <nav class="topnav" id="topnav" aria-label="Main">
+    <a class="brand" href="#studio"><i class="logo-dot" aria-hidden="true"></i>Paint the Lesson</a>
+    <span class="sep"></span>
+    <div class="nav-items" id="navItems">
+      <a class="tool" id="navStudio" href="#studio" aria-pressed="true">Studio</a>
+      <a class="tool" id="navLib" href="#classes" aria-pressed="false">My classes</a>
+      <a class="tool" id="navCourses" href="#courses" aria-pressed="false">Courses</a>
+      <a class="tool" id="navCal" href="#calendar" aria-pressed="false">Calendar</a>
+    </div>
+    <a class="acct-chip" id="navAcct" href="#profile" aria-pressed="false" aria-label="Your profile and settings"><img id="navAvatar" alt=""><span id="navName"></span></a>
+  </nav>
+  <main id="main">
+  <div id="vStudio">
+  <header>
+    <h1>Mix a lesson.</h1>
+    <p>Fill the wells you want, add an article or upload a file, then press the thumb hole to paint. Empty wells are skipped. After it's painted, repaint any section you don't like.</p>
+  </header>
+
+  <div class="layout">
+    <div>
+      <div class="palette intro" id="palette">
+        <svg class="board" viewBox="0 0 600 440" aria-hidden="true">
+          <defs>
+            <path id="shape" d="M300 18 C 472 12, 592 88, 588 198 C 585 268, 528 292, 476 286 C 434 282, 412 306, 428 342 C 448 390, 398 432, 318 428 C 176 421, 22 362, 12 220 C 3 88, 140 24, 300 18 Z M 284 298 a 52 38 0 1 0 0.1 0 Z"/>
+          </defs>
+                    <use href="#shape" class="board-shape" fill-rule="evenodd"/>
+        </svg>
+        <div class="sticker" aria-hidden="true"><b id="stickMin">90 min</b><span id="stickInfo">B1</span></div>
+        <div class="doodle" aria-hidden="true">
+          <svg viewBox="0 0 40 44"><path d="M20 13c-4-4-14-3-15 7-1 9 5 19 10 20 2 .4 3-1 5-1s3 1.4 5 1c5-1 11-11 10-20-1-10-11-11-15-7z"/><path d="M20 13c0-4 1-7 4-9"/><path d="M21 9c3-4 8-4 10-2-3 3-7 3-10 2z"/><path d="M11 21c0-3 2-5 4-5"/></svg>
+        </div>
+        <button class="hole" id="hole" aria-label="Paint the lesson">Paint</button>
+      </div>
+
+      <section class="paper mixer" id="mixer" hidden aria-labelledby="mxTitle">
+        <h2 id="mxTitle">Mix your own colour</h2>
+        <div class="field">
+          <label for="mxName">Section name</label>
+          <input id="mxName" type="text" maxlength="40" placeholder="e.g. Pronunciation">
+        </div>
+        <div class="field">
+          <label for="mxSpec">What should it include?</label>
+          <textarea id="mxSpec" maxlength="400" placeholder="e.g. 5 tricky words from the article with stress marks, plus 2 tongue twisters using them"></textarea>
+        </div>
+        <div class="field">
+          <p class="group-label" id="mxMinLabel">Size in the lesson</p>
+          <div class="swatches" role="group" aria-labelledby="mxMinLabel" id="mxMin"></div>
+        </div>
+        <div class="field">
+          <p class="group-label" id="mxPaintLabel">Colour</p>
+          <div class="paints" role="group" aria-labelledby="mxPaintLabel" id="mxPaint"></div>
+        </div>
+        <p class="mx-err" id="mxErr" role="alert"></p>
+        <div class="mx-actions">
+          <button class="mx-save" id="mxSave">Add to palette</button>
+          <button class="mx-ghost" id="mxCancel">Cancel</button>
+          <span class="sep"></span>
+          <button class="mx-ghost danger" id="mxDelete" hidden>Remove colour</button>
+        </div>
+      </section>
+
+      <div class="controls">
+        <div>
+          <p class="group-label" id="lvlLabel">Level</p>
+          <div class="swatches" role="group" aria-labelledby="lvlLabel" id="levels"></div>
+        </div>
+        <div>
+          <p class="group-label" id="lenLabel">Lesson length</p>
+          <div class="swatches" role="group" aria-labelledby="lenLabel" id="lengths"></div>
+        </div>
+        <div>
+          <p class="group-label">Your mix</p>
+          <ul class="legend" id="legend"></ul>
+        </div>
+      </div>
+
+      <section class="paper form" id="formCard" aria-label="Student and article">
+        <div id="unavail" class="unavailable" hidden>To paint lessons, add your own AI key once. Google Gemini keys are free. <button class="linkish" id="unavailGo" type="button">Add my AI key</button></div>
+        <div class="field">
+          <label for="student">Student <span class="hint">(job, interests, goals)</span></label>
+          <input id="student" type="text" placeholder="e.g. marketing manager, loves coffee, wants confidence in meetings">
+        </div>
+        <div class="field">
+          <label for="focus">Language focus <span class="hint">(optional)</span></label>
+          <input id="focus" type="text" placeholder="e.g. phrasal verbs, used to / get used to">
+        </div>
+        <div class="field">
+          <label for="article">Article</label>
+          <div class="drop" id="drop">
+            <input type="file" id="file" accept=".pdf,.docx,.txt,.md,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" hidden>
+            <button class="upload-btn" id="fileBtn" type="button">Upload PDF or Word</button>
+            <span class="drop-hint">or drop a file here, up to 50 MB</span>
+            <div class="file-chip" id="fileChip" hidden><span id="fileName"></span><button id="fileClear" type="button">Remove</button></div>
+          </div>
+          <textarea id="article" placeholder="Paste the article text here, or upload a file above"></textarea>
+          <div class="counter" id="counter">0 words</div>
+        </div>
+        <div class="field listen-box" id="listenField" hidden>
+          <label for="ytUrl">YouTube video for Listening</label>
+          <input id="ytUrl" type="url" inputmode="url" placeholder="https://www.youtube.com/watch?v=…">
+          <p class="hint-line" id="ytMsg">Only YouTube links work here.</p>
+          <label for="transcript" style="margin-top:12px">Video transcript</label>
+          <textarea id="transcript" placeholder="Paste the transcript here"></textarea>
+          <p class="hint-line">On YouTube, open the video's description, press Show transcript, then select it all and paste it here. Timestamps are removed for you. <span id="trCount"></span></p>
+        </div>
+        <button class="paint-btn" id="go">Paint the lesson</button>
+        <div class="status" id="status" role="status" aria-live="polite"></div>
+      </section>
+    </div>
+
+    <section aria-label="Lesson">
+      <div class="toolbar" id="toolbar" hidden>
+        <button class="tool" id="viewTeacher" aria-pressed="true">Teacher copy</button>
+        <button class="tool" id="viewStudent" aria-pressed="false">Student worksheet</button>
+        <span class="sep"></span>
+        <button class="tool" id="openSlides" hidden>Open slides</button>
+        <button class="tool" id="toCourse" hidden>Add to course</button>
+        <button class="tool" id="copy">Copy</button>
+        <span class="dl-wrap" id="saveWrap" hidden>
+          <button class="tool" id="save" aria-expanded="false" aria-controls="saveMenu" aria-haspopup="true">Download</button>
+          <span class="dl-menu paper" id="saveMenu" hidden role="menu">
+            <button role="menuitem" id="dlWord">Word (.docx)</button>
+            <button role="menuitem" id="dlPdf">PDF</button>
+          </span>
+        </span>
+        <button class="tool" id="stop" hidden>Stop</button>
+      </div>
+      <article class="paper sheet">
+        <div id="out" class="empty">Your painted lesson will appear here, each section in the colour of its well.</div>
+      </article>
+    </section>
+  </div>
+  </div>
+  <div id="vLib" hidden>
+    <header>
+      <h1>My classes.</h1>
+      <p>Every lesson you paint is kept here. Edit its slides, present it, export it for Canva, or add it to a course for your students.</p>
+    </header>
+    <div class="lib-layout">
+      <aside class="folders" aria-label="Folders">
+        <div id="folderList"></div>
+        <button class="mx-ghost new-folder" id="newFolder">New folder</button>
+        <p class="fold-hint">Drag a class onto a folder to move it. Double-click a folder to rename it.</p>
+      </aside>
+      <div>
+        <div class="lib-top"><h2 class="lib-heading" id="libHeading">All classes</h2><input id="libSearch" class="lib-search" type="search" placeholder="Search classes" aria-label="Search classes"></div>
+        <div class="lib-grid" id="libGrid"></div>
+      </div>
+    </div>
+  </div>
+  <div id="vCourses" hidden></div>
+  <div id="vCourse" hidden></div>
+  <div id="vLessonEd" hidden></div>
+  <div id="vCalendar" hidden></div>
+  <div id="vProfile" hidden></div>
+  </main>
+</div>
+
+<div class="editor" id="vEditor" hidden>
+  <div class="ed-bar">
+    <button class="tool" id="edBack">Back to my classes</button>
+    <input id="edTitle" class="ed-title" type="text" aria-label="Class title">
+    <span class="ed-saved" id="edSaved" role="status" aria-live="polite"></span>
+    <span class="sep"></span>
+    <button class="tool" id="edRebuild">Rebuild from lesson</button>
+    <button class="tool" id="edToCourse">Add to course</button>
+    <button class="tool" id="edPresent">Present</button>
+    <button class="ed-primary" id="edExport" aria-expanded="false" aria-controls="exportPanel">Export for Canva</button>
+  </div>
+  <section class="paper export-panel" id="exportPanel" hidden aria-label="Export for Canva">
+    <h2>Export for Canva</h2>
+    <p>This downloads a PowerPoint file. In Canva, choose Create a design, then Import file, and pick it. Your slides open in order and move left to right.</p>
+    <label class="check"><input type="checkbox" id="exAnswers" checked> Include answer slides</label>
+    <label class="check"><input type="checkbox" id="exNotes" checked> Include speaker notes</label>
+    <div class="mx-actions"><button class="mx-save" id="exGo">Download .pptx</button></div>
+    <h3 class="ex-sub">Lesson document</h3>
+    <p>The full lesson as you painted it, as a Word file or a PDF to print or send.</p>
+    <label class="check"><input type="checkbox" id="exStudent"> Student worksheet (no answers or teacher notes)</label>
+    <div class="mx-actions"><button class="mx-save" id="exWord">Download Word</button><button class="mx-save" id="exPdf">Download PDF</button><span class="sep"></span><button class="mx-ghost" id="exClose">Close</button></div>
+    <p class="ask-msg" id="exMsg" role="status" aria-live="polite"></p>
+  </section>
+  <div class="ed-grid">
+    <div class="thumbs" id="thumbs" aria-label="Slides"></div>
+    <div>
+      <div class="stage" id="stage"></div>
+      <div class="stage-nav">
+        <button class="tool" id="prevSlide">Previous</button>
+        <span id="slideCount" aria-live="polite"></span>
+        <button class="tool" id="nextSlide">Next</button>
+      </div>
+    </div>
+    <aside class="paper inspector" aria-label="Edit">
+      <div class="tabs" role="tablist">
+        <button class="tool" id="tabSlide" role="tab" aria-selected="true" aria-pressed="true">Slide</button>
+        <button class="tool" id="tabDesign" role="tab" aria-selected="false" aria-pressed="false">Design</button>
+      </div>
+      <div id="pSlide" role="tabpanel">
+        <div class="field"><label for="insLabel">Small label</label><input id="insLabel" type="text" maxlength="120"></div>
+        <div class="field"><label for="insTitle">Title</label><input id="insTitle" type="text" maxlength="160"></div>
+        <div class="field"><label for="insBody" id="insBodyLabel">Slide text</label><textarea id="insBody"></textarea>
+          <p class="hint-line">Start a line with - for a bullet or 1. for a number. Use **double stars** for bold.</p></div>
+        <div class="field" id="layoutField"><p class="group-label" id="layLabel">Layout</p><div class="swatches" role="group" aria-labelledby="layLabel" id="insLayout"></div></div>
+        <div class="field">
+          <p class="group-label">Accent colour</p>
+          <div class="accent-row"><label class="check" style="margin:0"><input type="checkbox" id="insOwnAccent"> Own colour for this slide</label><input type="color" id="insAccent" aria-label="Slide accent colour"></div>
+        </div>
+        <div class="field" id="answersField"><label class="check"><input type="checkbox" id="insAnswers"> Answer slide (teacher only)</label></div>
+        <div class="field"><label for="insNotes">Speaker notes <span class="hint">(only you see these)</span></label><textarea id="insNotes"></textarea></div>
+        <div class="field">
+          <label for="insAsk">Ask the AI to change this slide</label>
+          <div class="ask"><input id="insAsk" type="text" placeholder="e.g. simpler words, add 2 questions"><button class="mx-save" id="askGo">Rewrite</button></div>
+          <p class="ask-msg" id="askMsg" role="status" aria-live="polite"></p>
+          <button class="mx-ghost" id="askUndo" hidden>Undo rewrite</button>
+        </div>
+        <hr>
+        <div class="slide-acts">
+          <button class="mx-ghost" id="insAdd">Add slide</button>
+          <button class="mx-ghost" id="insDup">Duplicate</button>
+          <button class="mx-ghost" id="insUp">Move earlier</button>
+          <button class="mx-ghost" id="insDown">Move later</button>
+          <button class="mx-ghost danger" id="insDel">Delete</button>
+        </div>
+      </div>
+      <div id="pDesign" role="tabpanel" hidden>
+        <div class="field"><p class="group-label">Theme</p><div class="themes" id="themes"></div></div>
+        <div class="field"><p class="group-label">Colours</p>
+          <div class="colors">
+            <label><input type="color" id="dPrimary"> Main</label>
+            <label><input type="color" id="dAccent"> Accent</label>
+            <label><input type="color" id="dBg"> Background</label>
+            <label><input type="color" id="dText"> Text</label>
+          </div></div>
+        <div class="field"><p class="group-label" id="fontLabel">Fonts</p><div class="swatches" role="group" aria-labelledby="fontLabel" id="dFonts"></div></div>
+        <div class="field"><p class="group-label" id="sizeLabel">Text size</p><div class="swatches" role="group" aria-labelledby="sizeLabel" id="dSizes"></div></div>
+        <div class="field"><label class="check"><input type="checkbox" id="dFooter"> Show class title and slide numbers</label></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+
+<div class="present" id="present" hidden role="dialog" aria-modal="true" aria-label="Presentation">
+  <div class="pr-stage" id="prStage"></div>
+  <p class="pr-notes" id="prNotes" hidden></p>
+  <div class="pr-bar"><button id="prPrev">Previous</button><span id="prCount"></span><button id="prNext">Next</button><button id="prNotesBtn" title="Speaker notes (N)">Notes</button><button id="prExit">Exit</button></div>
+</div>
+<noscript><p style="padding:20px">Paint the Lesson needs JavaScript.</p></noscript>
+</body>
+</html>

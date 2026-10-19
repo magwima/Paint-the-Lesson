@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Paint the Lesson: gotowa lekcja angielskiego w dwie minuty</title>
+<meta name="description" content="Paint the Lesson zamienia dowolny tekst w gotową lekcję angielskiego, a z lekcji buduje kurs dla Twoich uczniów: quizy, prace domowe, postępy i certyfikaty.">
+<meta name="theme-color" content="#E6E3DE">
+<meta property="og:title" content="Paint the Lesson">
+<meta property="og:description" content="A ready English lesson from any text in two minutes, plus courses, quizzes, homework and certificates for your students.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,400;1,7..72,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E6E3DE; --bg-text:#26262A; --bg-muted:#5E5C58;
+  --paper:#FCFBF8; --paper-text:#26262A; --paper-muted:#6A675F; --paper-line:#E3DED4;
+  --navy:#1F2A44; --gold:#B08D57; --alert:#C2413A;
+  --ui:"Figtree","Segoe UI",system-ui,sans-serif; --serif:"Literata",Georgia,"Times New Roman",serif;
+  --noise:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .09 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --brush:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 34' preserveAspectRatio='none'><path d='M6 16 C 40 5, 92 3, 150 7 S 262 12, 296 8 L 298 21 C 262 29, 170 25, 104 28 S 24 33, 3 27 Z'/></svg>");
+  --fat:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 40' preserveAspectRatio='none'><path d='M9 5 C 62 1, 150 3, 222 2 S 291 4, 296 10 C 299 18, 298 27, 291 33 C 232 38, 142 35, 72 37 S 8 35, 3 27 C 0 19, 2 10, 9 5 Z'/></svg>");
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --bg:#1C1D20; --bg-text:#ECEAE5; --bg-muted:#A6A39C; } }
+:root[data-theme="dark"]{ --bg:#1C1D20; --bg-text:#ECEAE5; --bg-muted:#A6A39C; }
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(76px + env(safe-area-inset-top,0px)); scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
+body{margin:0; background:var(--bg) var(--noise); color:var(--bg-text); font:16px/1.55 var(--ui)}
+a{color:inherit}
+.wrap{max-width:1200px; margin:0 auto; padding:0 20px}
+:focus-visible{outline:3px solid #3B6FD8; outline-offset:3px}
+
+.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:30; background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px)}
+.top .wrap{display:flex; align-items:center; gap:6px; height:64px}
+.logo{display:flex; align-items:center; gap:10px; font:700 italic 1.2rem var(--serif); text-decoration:none; margin-right:auto}
+.logo i{width:26px; height:20px; border-radius:50% 45% 50% 40% / 55% 50% 50% 45%; background:conic-gradient(#E89AA6 0 25%, #F2B33D 0 50%, #B9D8B0 0 75%, #A9CFEA 0); display:inline-block; box-shadow:inset 0 -2px 3px rgba(0,0,0,.15)}
+.nav-link{text-decoration:none; font-weight:600; font-size:.94rem; padding:8px 10px}
+@media (max-width:900px){ .nav-link{display:none} }
+.lang{display:flex; border:1px solid color-mix(in srgb, var(--bg-text) 25%, transparent); border-radius:999px; padding:2px; margin:0 6px}
+.lang button{border:0; background:transparent; color:var(--bg-text); font:700 .8rem var(--ui); padding:5px 10px; border-radius:999px; cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--bg-text); color:var(--bg)}
+.btn-ink{display:inline-block; text-decoration:none; background:var(--navy); color:#fff; font:700 .92rem var(--ui); padding:10px 16px; border-radius:7px; white-space:nowrap}
+.btn-line{display:inline-block; text-decoration:none; font:700 .92rem var(--ui); padding:9px 12px; border-radius:7px; white-space:nowrap}
+@media (max-width:520px){ .top .btn-ink{display:none} }
+
+.paint-btn{position:relative; z-index:0; display:inline-block; text-decoration:none; text-align:center; padding:20px 30px 22px; font:800 1.12rem var(--ui); color:#26262A; transition:transform .12s ease; margin-bottom:8px}
+.paint-btn::before, .paint-btn::after{content:""; position:absolute; inset:0 -4px; -webkit-mask:var(--fat) center/100% 100% no-repeat; mask:var(--fat) center/100% 100% no-repeat}
+.paint-btn::before{z-index:-1; background:linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0) 42%, rgba(0,0,0,.06) 80%), var(--noise), linear-gradient(90deg,#E89AA6,#F2B33D 30%,#B9D8B0 55%,#BFDDF0 80%,#C9B6E4)}
+.paint-btn::after{z-index:-2; transform:translateY(6px); background:linear-gradient(90deg,#B4606E,#B5810F 30%,#749A68 55%,#6E9BBD 80%,#8A74AE); transition:transform .12s ease}
+.paint-btn:hover{transform:translateY(-2px)} .paint-btn:hover::after{transform:translateY(8px)}
+.paint-btn:active{transform:translateY(4px)} .paint-btn:active::after{transform:translateY(2px)}
+.hero-acts{display:flex; flex-wrap:wrap; gap:14px 22px; align-items:center}
+.hero-acts .alt{font-weight:700}
+
+.hero{padding:36px 0 40px}
+.hero .wrap{display:grid; gap:34px; align-items:start}
+@media (min-width:1000px){ .hero .wrap{grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr); gap:46px} }
+.badge{display:inline-block; position:relative; z-index:0; font:700 .85rem var(--ui); color:#26262A; padding:5px 12px; margin-bottom:16px}
+.badge::before{content:""; position:absolute; inset:0 -4px; z-index:-1; background:#F2B33D; -webkit-mask:var(--brush) center/100% 100% no-repeat; mask:var(--brush) center/100% 100% no-repeat}
+h1{font:700 italic clamp(2.5rem,7.2vw,4.4rem)/1 var(--serif); letter-spacing:-.02em; margin:0 0 18px; max-width:12ch}
+.lead{font-size:1.1rem; color:var(--bg-muted); max-width:46ch; margin:0 0 26px}
+.note{font-size:.88rem; color:var(--bg-muted); margin:6px 0 0; max-width:46ch}
+
+.demo{display:grid; gap:14px}
+.palette{position:relative; width:100%; max-width:560px; margin:0 auto; aspect-ratio:600/440}
+.palette svg.board{position:absolute; inset:0; width:100%; height:100%; overflow:visible}
+.board-shape{fill:#FBFAF7; filter:drop-shadow(3px 9px 7px rgba(0,0,0,.2))}
+.well{position:absolute; width:13.4%; aspect-ratio:1; transform:translate(-50%,-50%); border-radius:50%; border:0; padding:0; cursor:pointer; background:#fff;
+  box-shadow:inset 0 0 0 2px #EEECE7, inset 0 4px 7px rgba(0,0,0,.10)}
+.well .cup{position:absolute; inset:10%; border-radius:50%; background:#F3F1EC; box-shadow:inset 0 3px 6px rgba(0,0,0,.08)}
+.well .scoop{position:absolute; inset:7%; display:grid; place-items:center; border-radius:52% 48% 50% 50% / 50% 53% 47% 50%;
+  background:radial-gradient(circle at 34% 28%, rgba(255,255,255,.6), transparent 42%), radial-gradient(circle at 62% 78%, rgba(0,0,0,.13), transparent 56%), var(--noise), var(--paint);
+  box-shadow:0 3px 5px rgba(0,0,0,.14); transition:transform .25s cubic-bezier(.3,1.6,.5,1), opacity .2s}
+.well .scoop svg{width:46%; height:46%; stroke:#2A2826; fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round}
+.well[aria-pressed="false"] .scoop{transform:scale(.2); opacity:0}
+.well::after, .hole::after{content:attr(data-tip); position:absolute; left:50%; bottom:calc(100% + 8px); transform:translateX(-50%); white-space:pre; pointer-events:none; opacity:0; z-index:10;
+  font:600 .78rem/1.3 var(--ui); color:#26262A; background:#FFFDF8; padding:6px 10px; border-radius:6px; box-shadow:0 6px 16px -6px rgba(0,0,0,.35); border-bottom:3px solid var(--paint,#BFDDF0); transition:opacity .15s}
+.hole::after{bottom:auto; top:calc(100% + 8px)}
+@media (hover:hover){ .well:hover::after, .hole:hover::after{opacity:1} }
+.well:focus-visible::after, .hole:focus-visible::after{opacity:1}
+.well:hover, .well:focus-visible, .hole:hover{z-index:9}
+.sticker{position:absolute; left:53%; top:44.3%; width:18.5%; aspect-ratio:1; transform:translate(-50%,-50%) rotate(-14deg); border-radius:50%; background:#BFDDF0; color:#1F3346; display:grid; place-content:center; text-align:center; pointer-events:none}
+.sticker b{font:700 clamp(.95rem,3.4vw,1.55rem)/1 var(--serif)}
+.sticker span{font-size:clamp(.5rem,1.6vw,.7rem); font-weight:700; margin-top:2px}
+.hole{position:absolute; left:47.33%; top:76.4%; width:17.4%; height:17.2%; transform:translate(-50%,-50%); border-radius:50%; border:0; background:transparent; cursor:pointer; color:var(--bg-text); font:800 clamp(.7rem,2.2vw,.95rem) var(--ui); box-shadow:inset 0 4px 8px rgba(0,0,0,.28)}
+.hole:disabled{cursor:wait; opacity:.7}
+.doodle{position:absolute; left:87%; top:57.5%; width:6.5%; transform:translate(-50%,-50%) rotate(8deg); pointer-events:none}
+.doodle svg{width:100%; stroke:#2A2826; fill:none; stroke-width:1.3; stroke-linecap:round; stroke-linejoin:round}
+.demo-hint{font-size:.86rem; color:var(--bg-muted); text-align:center; margin:0}
+@media (prefers-reduced-motion: no-preference){
+  .palette.intro .well .scoop{animation:drop .55s cubic-bezier(.3,1.5,.5,1) both; animation-delay:calc(var(--n) * 70ms + 150ms)}
+  @keyframes drop{from{transform:translateY(-18px) scale(.4); opacity:0}}
+}
+
+.paper{background:var(--paper) var(--noise); color:var(--paper-text); border-radius:3px; box-shadow:0 1px 2px rgba(0,0,0,.08), 0 14px 30px -16px rgba(0,0,0,.4)}
+.sheet{height:clamp(320px,46vh,430px); overflow-y:auto; padding:22px 24px 26px; position:relative; scrollbar-width:thin}
+.sheet-tag{font:700 .75rem var(--ui); color:var(--paper-muted); margin:0 0 6px}
+.lesson{font-family:var(--serif); font-size:.95rem; line-height:1.6}
+.lesson .title{font:700 1.45rem/1.15 var(--serif); color:var(--navy); margin:0 0 4px}
+.lesson .aim{font-style:italic; color:var(--paper-muted); margin:0 0 6px; font-size:.9rem}
+.part{border-top:1px solid var(--paper-line); padding-top:10px; margin-top:12px}
+.part h3{display:flex; align-items:center; gap:9px; font:700 1.02rem var(--serif); color:var(--navy); margin:0 0 4px}
+.part h3::before{content:""; width:10px; height:10px; border-radius:2px; background:var(--paint); box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.part p, .part li{margin:.2em 0}
+.part ol, .part ul{margin:.2em 0; padding-left:1.3em}
+.part.teacher{background:#F4F1EA; border-left:3px solid var(--navy); border-top:0; padding:8px 12px; border-radius:0 6px 6px 0}
+.part.teacher h3{font-size:.95rem}
+mark.vk{background:rgba(232,154,166,.32); color:inherit; border-bottom:2px solid #D97A8A; padding:0 .12em; border-radius:2px; font-weight:600}
+@media (prefers-reduced-motion: no-preference){
+  .painted{animation:wipe .6s cubic-bezier(.4,.1,.2,1) both}
+  @keyframes wipe{from{clip-path:inset(0 100% 0 0); opacity:.3} to{clip-path:inset(0 0 0 0); opacity:1}}
+}
+
+section.block{padding:70px 0}
+.h2{font:700 italic clamp(2rem,5vw,3rem)/1.05 var(--serif); letter-spacing:-.015em; margin:0 0 12px; max-width:18ch}
+.sub{color:var(--bg-muted); font-size:1.08rem; margin:0 0 34px; max-width:56ch}
+
+.gets{display:grid; gap:26px}
+@media (min-width:900px){ .gets{grid-template-columns:repeat(3,1fr)} }
+.get h3{font:700 1.15rem var(--serif); margin:16px 0 6px}
+.get p{margin:0; color:var(--bg-muted)}
+.mock{height:270px; position:relative}
+.mock-story{padding:20px 22px; font:400 .9rem/1.65 var(--serif); overflow:hidden}
+.mock-story b{display:block; font-family:var(--ui); margin-bottom:6px}
+.mock-story .wl{margin-top:10px; padding-top:8px; border-top:1px solid var(--paper-line); font-size:.82rem}
+.pages{position:relative; height:100%}
+.page{position:absolute; height:90%; aspect-ratio:1/1.3; padding:16px 16px; font-size:.62rem; line-height:1.5; overflow:hidden}
+.page.back{left:20%; top:6%; transform:rotate(4deg); opacity:.9}
+.page.front{left:8%; top:2%; transform:rotate(-3deg)}
+.page .pt{font:700 .95rem/1.15 var(--serif); color:var(--navy); margin:0 0 4px}
+.page .nd{color:var(--paper-muted); margin:0 0 8px}
+.page .ph{display:flex; align-items:center; gap:6px; font:700 .72rem var(--serif); color:var(--navy); margin:8px 0 3px; border-top:1px solid var(--paper-line); padding-top:6px}
+.page .ph i{width:7px; height:7px; border-radius:1.5px; background:var(--paint)}
+.page .ln{height:5px; border-radius:3px; background:#E7E2D8; margin:5px 0}
+.ftag{position:absolute; right:6%; bottom:6%; font:800 .75rem var(--ui); background:var(--alert); color:#fff; padding:4px 8px; border-radius:4px; transform:rotate(-4deg)}
+.slides{height:100%; display:grid; place-items:center; overflow:hidden; border-radius:3px; background:#2A2F3A}
+.slides-track{position:relative; width:88%; aspect-ratio:16/9}
+.sl{container-type:inline-size; position:absolute; inset:0; border-radius:2px; overflow:hidden; box-shadow:0 10px 24px -10px rgba(0,0,0,.6); opacity:0; transition:transform .5s ease, opacity .5s ease; transform:translateX(12%)}
+.sl.on{opacity:1; transform:none}
+.sl.out{opacity:0; transform:translateX(-12%)}
+.sl.t{background:var(--navy); color:#fff}
+.sl.t .in{position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; padding:0 9cqw}
+.sl.t small{font:700 2.6cqw var(--ui); color:var(--gold)}
+.sl.t b{font:700 6.2cqw/1.1 Georgia,serif; margin:1.5cqw 0 2.6cqw}
+.sl.t span{display:block; width:14cqw; height:.6cqw; background:var(--gold)}
+.sl.c{background:#fff; color:#1F2430}
+.sl.c .in{position:absolute; inset:0; padding:6cqw 7cqw 0 9cqw}
+.sl.c::before{content:""; position:absolute; left:0; top:0; bottom:0; width:1.6cqw; background:var(--navy)}
+.sl.c small{font:700 2.2cqw var(--ui); color:var(--gold)}
+.sl.c b{display:block; font:700 5cqw Georgia,serif; color:var(--navy); margin:1cqw 0 3cqw}
+.sl.c p{font:3cqw/1.45 Arial,sans-serif; margin:0}
+.sl.c mark{background:none; color:var(--gold); font-weight:700}
+.ctag{position:absolute; right:10px; bottom:10px; font:800 .72rem var(--ui); background:#fff; color:#26262A; padding:4px 8px; border-radius:4px}
+
+/* Teaching platform features */
+.feats{display:grid; gap:16px; grid-template-columns:repeat(auto-fill, minmax(250px,1fr)); list-style:none; padding:0; margin:0}
+.feat{padding:20px 20px 22px}
+.feat .dot{width:42px; height:42px; display:grid; place-items:center; margin-bottom:10px; border-radius:52% 48% 50% 50% / 50% 53% 47% 50%; background:radial-gradient(circle at 34% 28%, rgba(255,255,255,.6), transparent 45%), var(--paint); box-shadow:0 3px 6px rgba(0,0,0,.15)}
+.feat .dot svg{width:22px; height:22px; stroke:#2A2826; fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round}
+.feat h3{font:700 1.08rem var(--serif); margin:0 0 4px}
+.feat p{margin:0; color:var(--paper-muted); font-size:.95rem}
+.students{display:grid; gap:28px; align-items:center; margin-top:44px}
+@media (min-width:900px){ .students{grid-template-columns:1fr 1fr} }
+.student-mock{padding:18px 20px}
+.sm-row{display:flex; align-items:center; gap:10px; padding:10px 6px; border-top:1px solid var(--paper-line); font-size:.92rem}
+.sm-row:first-of-type{border-top:0}
+.sm-row i{width:24px; height:24px; display:grid; place-items:center; border-radius:50%; background:#EFEBE3; font:700 .72rem var(--ui); font-style:normal; flex:none}
+.sm-row.done i{background:#B9D8B0}
+.sm-row.lock{opacity:.55}
+.sm-row small{margin-left:auto; color:var(--paper-muted)}
+.sm-bar{height:9px; border-radius:99px; background:#E9E4DA; overflow:hidden; margin:8px 0 14px}
+.sm-bar b{display:block; height:100%; width:62%; background:linear-gradient(90deg,#B9D8B0,#7FB27A)}
+.sm-h{font:700 1.1rem var(--serif); margin:0 0 2px}
+.sm-sub{color:var(--paper-muted); font-size:.85rem; margin:0}
+
+.steps{display:grid; gap:22px; list-style:none; padding:0; margin:0}
+@media (min-width:860px){ .steps{grid-template-columns:repeat(3,1fr)} }
+.step{padding:24px 24px 26px; position:relative}
+.step .num{width:52px; height:52px; display:grid; place-items:center; font:700 1.4rem var(--serif); color:#26262A; margin-bottom:12px;
+  border-radius:52% 48% 50% 50% / 50% 53% 47% 50%; background:radial-gradient(circle at 34% 28%, rgba(255,255,255,.6), transparent 45%), var(--paint); box-shadow:0 3px 6px rgba(0,0,0,.15)}
+.step h3{font:700 1.2rem var(--serif); margin:0 0 6px}
+.step p{margin:0; color:var(--paper-muted)}
+
+.founder{display:grid; gap:26px; align-items:center; padding:34px 30px}
+@media (min-width:820px){ .founder{grid-template-columns:auto 1fr; padding:44px 48px} }
+.face{width:120px; height:120px; display:grid; place-items:center; font:700 italic 3rem var(--serif); color:#fff; border-radius:52% 48% 50% 50% / 50% 53% 47% 50%;
+  background:radial-gradient(circle at 34% 28%, rgba(255,255,255,.35), transparent 45%), var(--noise), var(--navy); box-shadow:0 6px 14px -4px rgba(0,0,0,.35)}
+blockquote{margin:0; font:400 italic clamp(1.25rem,2.6vw,1.65rem)/1.4 var(--serif); color:var(--paper-text)}
+.sign{margin:14px 0 0; font-weight:700}
+.sign span{font-weight:500; color:var(--paper-muted)}
+
+.builders{display:grid; gap:28px; align-items:center}
+@media (min-width:900px){ .builders{grid-template-columns:1.1fr .9fr} }
+.signup{padding:26px}
+.signup label{display:block; font-weight:700; margin-bottom:6px}
+.signup input[type=email]{width:100%; font:inherit; padding:12px 14px; border:1px solid var(--paper-line); border-radius:7px; background:#fff; color:#26262A}
+.consent{display:flex !important; font-weight:500 !important; gap:10px; align-items:flex-start; font-size:.86rem; color:var(--paper-muted); margin:12px 0 16px}
+.consent input{margin-top:3px}
+.signup button{width:100%; border:0; border-radius:7px; padding:13px 16px; font:800 1rem var(--ui); background:var(--navy); color:#fff; cursor:pointer}
+.signup button:disabled{opacity:.55; cursor:not-allowed}
+.form-msg{min-height:1.3em; font-size:.88rem; margin:10px 0 0}
+.form-msg.err{color:var(--alert)}
+
+.faq{max-width:780px}
+details{border-top:1px solid color-mix(in srgb, var(--bg-text) 18%, transparent); padding:4px 0}
+details:last-child{border-bottom:1px solid color-mix(in srgb, var(--bg-text) 18%, transparent)}
+summary{cursor:pointer; list-style:none; font:700 1.08rem var(--serif); padding:14px 30px 14px 0; position:relative}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+"; position:absolute; right:4px; top:10px; font:600 1.4rem var(--ui); color:var(--bg-muted)}
+details[open] summary::after{content:"\2212"}
+details p{margin:0 0 16px; color:var(--bg-muted); max-width:62ch}
+
+.final{text-align:center; padding:60px 0 80px}
+.final .h2{margin:0 auto 18px}
+footer{border-top:1px solid color-mix(in srgb, var(--bg-text) 15%, transparent); padding:26px 0 34px; font-size:.85rem; color:var(--bg-muted)}
+footer .wrap{display:flex; flex-wrap:wrap; gap:8px 24px; justify-content:space-between}
+footer a{font-weight:600}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#top"><i aria-hidden="true"></i>Paint the Lesson</a>
+    <a class="nav-link" href="#what" data-i="nav.what"></a>
+    <a class="nav-link" href="#teach" data-i="nav.teach"></a>
+    <a class="nav-link" href="#how" data-i="nav.how"></a>
+    <a class="nav-link" href="#faq" data-i="nav.faq"></a>
+    <div class="lang" role="group" aria-label="Język / Language">
+      <button id="lgPl" aria-pressed="true" lang="pl">PL</button>
+      <button id="lgEn" aria-pressed="false" lang="en">EN</button>
+    </div>
+    <a class="btn-line" href="learn.html" data-i="nav.student"></a>
+    <a class="btn-ink" href="app.html" data-i="nav.cta"></a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <span class="badge" data-i="hero.badge"></span>
+        <h1 data-i="hero.h1"></h1>
+        <p class="lead" data-i="hero.lead"></p>
+        <div class="hero-acts"><a class="paint-btn" href="app.html" data-i="hero.cta"></a><a class="alt" href="learn.html" data-i="hero.student"></a></div>
+        <p class="note" data-i="hero.note"></p>
+      </div>
+      <div class="demo">
+        <div class="palette intro" id="palette">
+          <svg class="board" viewBox="0 0 600 440" aria-hidden="true">
+            <path class="board-shape" fill-rule="evenodd" d="M300 18 C 472 12, 592 88, 588 198 C 585 268, 528 292, 476 286 C 434 282, 412 306, 428 342 C 448 390, 398 432, 318 428 C 176 421, 22 362, 12 220 C 3 88, 140 24, 300 18 Z M 284 298 a 52 38 0 1 0 0.1 0 Z"/>
+          </svg>
+          <div class="sticker" aria-hidden="true"><b id="stMin">90 min</b><span id="stInfo"></span></div>
+          <div class="doodle" aria-hidden="true"><svg viewBox="0 0 40 44"><path d="M20 13c-4-4-14-3-15 7-1 9 5 19 10 20 2 .4 3-1 5-1s3 1.4 5 1c5-1 11-11 10-20-1-10-11-11-15-7z"/><path d="M20 13c0-4 1-7 4-9"/><path d="M21 9c3-4 8-4 10-2-3 3-7 3-10 2z"/><path d="M11 21c0-3 2-5 4-5"/></svg></div>
+          <button class="hole" id="hole"></button>
+        </div>
+        <p class="demo-hint" data-i="demo.hint"></p>
+        <div class="paper sheet" id="sheet" aria-live="polite">
+          <p class="sheet-tag" data-i="demo.sample"></p>
+          <div class="lesson" id="lesson"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="what">
+    <div class="wrap">
+      <h2 class="h2" data-i="what.h2"></h2>
+      <p class="sub" data-i="what.sub"></p>
+      <div class="gets">
+        <article class="get">
+          <div class="paper mock mock-story" aria-hidden="true">
+            <b>The Coffee Street</b>
+            When Anna opened her café, the street was empty. There was almost no <mark class="vk">foot traffic</mark>, and her friends were <mark class="vk">doubtful</mark>. She never <mark class="vk">compromised on</mark> quality, and slowly the street <mark class="vk">came alive</mark>.
+            <div class="wl"><mark class="vk">doubtful</mark> antonym of <em>confident</em><br><mark class="vk">came alive</mark> synonym of <em>became busy</em></div>
+          </div>
+          <h3 data-i="what.c1.t"></h3><p data-i="what.c1.d"></p>
+        </article>
+        <article class="get">
+          <div class="mock" aria-hidden="true"><div class="pages">
+            <div class="paper page back"><p class="pt">The Street That Woke Up</p><div class="ph" style="--paint:#B9D8B0"><i></i>Reading</div><div class="ln"></div><div class="ln" style="width:80%"></div><div class="ln"></div><div class="ln" style="width:60%"></div></div>
+            <div class="paper page front"><p class="pt">The Street That Woke Up</p><p class="nd">Name: ____________ &nbsp; Date: ________</p>
+              <div class="ph" style="--paint:#F2B33D"><i></i>Warm-up</div><div class="ln"></div><div class="ln" style="width:75%"></div>
+              <div class="ph" style="--paint:#E89AA6"><i></i>Key vocabulary</div><div class="ln"></div><div class="ln" style="width:85%"></div><div class="ln" style="width:65%"></div>
+              <div class="ph" style="--paint:#C9B6E4"><i></i>Practice</div><div class="ln"></div><div class="ln" style="width:70%"></div></div>
+            <span class="ftag">PDF · Word</span>
+          </div></div>
+          <h3 data-i="what.c2.t"></h3><p data-i="what.c2.d"></p>
+        </article>
+        <article class="get">
+          <div class="mock" aria-hidden="true"><div class="slides" id="slides"><div class="slides-track">
+            <div class="sl t on"><div class="in"><small>B1, 90 minutes</small><b>The Street That Woke Up</b><span></span></div></div>
+            <div class="sl c"><div class="in"><small>Part 3, 15 min</small><b>Reading</b><p>When Anna opened her café, there was almost no <mark>foot traffic</mark>, and her friends were <mark>doubtful</mark>.</p></div></div>
+            <div class="sl c"><div class="in"><small>Part 5, 15 min</small><b>Discussion</b><p>1. Was Anna right to charge more than the chain store?<br>2. What makes a street feel alive?</p></div></div>
+          </div><span class="ctag">Canva</span></div></div>
+          <h3 data-i="what.c3.t"></h3><p data-i="what.c3.d"></p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="teach">
+    <div class="wrap">
+      <h2 class="h2" data-i="teach.h2"></h2>
+      <p class="sub" data-i="teach.sub"></p>
+      <ul class="feats" id="feats"></ul>
+      <div class="students">
+        <div>
+          <h2 class="h2" style="font-size:clamp(1.7rem,4vw,2.4rem)" data-i="stu.h2"></h2>
+          <p class="sub" style="margin-bottom:0" data-i="stu.sub"></p>
+        </div>
+        <div class="paper student-mock" aria-hidden="true">
+          <p class="sm-h">Business English for meetings</p><p class="sm-sub">5 of 8 lessons · 62%</p>
+          <div class="sm-bar"><b></b></div>
+          <div class="sm-row done"><i>✓</i>Small talk that works<small>Quiz 100%</small></div>
+          <div class="sm-row done"><i>✓</i>Opening a meeting<small>Quiz 80%</small></div>
+          <div class="sm-row"><i>6</i>Disagreeing politely<small>Homework</small></div>
+          <div class="sm-row lock"><i>🔒</i>Closing and next steps<small>Opens Monday</small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="how">
+    <div class="wrap">
+      <h2 class="h2" data-i="how.h2"></h2>
+      <p class="sub" data-i="how.sub"></p>
+      <ol class="steps">
+        <li class="paper step"><div class="num" style="--paint:#F2B33D">1</div><h3 data-i="how.s1.t"></h3><p data-i="how.s1.d"></p></li>
+        <li class="paper step"><div class="num" style="--paint:#B9D8B0">2</div><h3 data-i="how.s2.t"></h3><p data-i="how.s2.d"></p></li>
+        <li class="paper step"><div class="num" style="--paint:#A9CFEA">3</div><h3 data-i="how.s3.t"></h3><p data-i="how.s3.d"></p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="block" id="founder">
+    <div class="wrap">
+      <div class="paper founder">
+        <div class="face" aria-hidden="true">D</div>
+        <div>
+          <blockquote data-i="founder.q"></blockquote>
+          <p class="sign">Dasz<span data-i="founder.role"></span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="builders">
+    <div class="wrap builders">
+      <div>
+        <h2 class="h2" data-i="build.h2"></h2>
+        <p class="sub" style="margin-bottom:0" data-i="build.sub"></p>
+      </div>
+      <form class="paper signup" id="signup" novalidate>
+        <label for="email" data-i="build.label"></label>
+        <input id="email" type="email" autocomplete="email" required>
+        <label class="consent"><input type="checkbox" id="consent" required><span data-i="build.consent"></span></label>
+        <button type="submit" id="signBtn" data-i="build.btn"></button>
+        <p class="form-msg" id="formMsg" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+
+  <section class="block" id="faq">
+    <div class="wrap faq">
+      <h2 class="h2" data-i="faq.h2"></h2>
+      <details><summary data-i="faq.q1"></summary><p data-i="faq.a1"></p></details>
+      <details><summary data-i="faq.q2"></summary><p data-i="faq.a2"></p></details>
+      <details><summary data-i="faq.q7"></summary><p data-i="faq.a7"></p></details>
+      <details><summary data-i="faq.q3"></summary><p data-i="faq.a3"></p></details>
+      <details><summary data-i="faq.q4"></summary><p data-i="faq.a4"></p></details>
+      <details><summary data-i="faq.q5"></summary><p data-i="faq.a5"></p></details>
+      <details><summary data-i="faq.q6"></summary><p data-i="faq.a6"></p></details>
+      <details><summary data-i="faq.q8"></summary><p data-i="faq.a8"></p></details>
+    </div>
+  </section>
+
+  <section class="final">
+    <div class="wrap">
+      <h2 class="h2" data-i="final.h2"></h2>
+      <a class="paint-btn" href="app.html" data-i="hero.cta"></a>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="wrap">
+    <span data-i="foot.made"></span>
+    <span><a href="learn.html" data-i="nav.student"></a> · <a href="verify.html" data-i="foot.verify"></a> · <span data-i="foot.small"></span></span>
+  </div>
+</footer>
+
+<script>
+const FORM_URL = ""; // e.g. a Tally or Google Form link; the email is added as ?email=
+
+const T = {
+  pl:{
+    "doc.title":"Paint the Lesson: gotowa lekcja angielskiego w dwie minuty",
+    "nav.what":"Co dostajesz","nav.teach":"Kursy","nav.how":"Jak to działa","nav.faq":"Pytania","nav.cta":"Wypróbuj za darmo","nav.student":"Dla uczniów",
+    "hero.badge":"Za darmo w czasie testów",
+    "hero.h1":"Odzyskaj swoje niedzielne wieczory.",
+    "hero.lead":"Paint the Lesson zamienia dowolny tekst w gotową lekcję angielskiego: rozgrzewkę, słownictwo, historyjkę, pytania, mówienie i quiz. Z lekcji zbudujesz kurs dla uczniów, z quizami, pracami domowymi i certyfikatem.",
+    "hero.cta":"Namaluj pierwszą lekcję za darmo","hero.student":"Jestem uczniem →",
+    "hero.note":"Logujesz się e-mailem lub przez Google. Lekcje pisze AI z Twoim własnym kluczem; klucz Google Gemini jest darmowy. Bez karty płatniczej.",
+    "demo.hint":"Stuknij kolor, żeby go usunąć lub dodać. Potem naciśnij otwór w palecie.",
+    "demo.sample":"Przykładowa lekcja, poziom B1",
+    "demo.paint":"Maluj","demo.painting":"…","demo.holeTip":"Namaluj lekcję",
+    "demo.skip":"Kliknij, aby pominąć","demo.add":"Kliknij, aby dodać",
+    "what.h2":"Co dostajesz po jednym kliknięciu.",
+    "what.sub":"Prawdziwe materiały, które możesz od razu dać uczniowi.",
+    "what.c1.t":"Historyjka z wyróżnionymi słowami",
+    "what.c1.d":"Oryginalny tekst na poziomie ucznia. Osiem słów z lekcji jest zaznaczonych kolorem, a lista obok pokazuje synonimy i antonimy, więc łatwo o nich rozmawiać.",
+    "what.c2.t":"Karta pracy w PDF lub Word",
+    "what.c2.d":"Wersja dla ucznia z miejscem na imię i datę, bez odpowiedzi. Wersja dla Ciebie z kluczem i notatkami po polsku.",
+    "what.c3.t":"Slajdy do Canvy",
+    "what.c3.d":"Eleganckie slajdy, które otworzysz w Canvie lub PowerPoincie. Prowadzisz lekcję slajd po slajdzie, z notatkami dla siebie.",
+    "teach.h2":"Wszystko, czego potrzebujesz, żeby uczyć online.",
+    "teach.sub":"Twoje lekcje stają się kursem. Uczniowie dołączają kodem klasy, a Ty widzisz, kto co zrobił.",
+    "f.courses.t":"Kursy i moduły","f.courses.d":"Układaj lekcje w moduły. Dodawaj tekst, filmy z YouTube, obrazy, pliki, linki i namalowane lekcje.",
+    "f.ai.t":"Kurs zaplanowany przez AI","f.ai.d":"Opisz cel kursu, a AI rozpisze moduły i lekcje, napisze treść, quizy i prace domowe. Ty tylko poprawiasz.",
+    "f.quiz.t":"Quizy sprawdzane automatycznie","f.quiz.d":"Jedna lub kilka poprawnych odpowiedzi, prawda/fałsz i krótkie odpowiedzi. Uczeń od razu widzi wynik.",
+    "f.hw.t":"Prace domowe i ocenianie","f.hw.d":"Uczeń wysyła tekst lub plik. Ty oceniasz i piszesz informację zwrotną, a AI może podpowiedzieć poprawki.",
+    "f.students.t":"Uczniowie i kod klasy","f.students.d":"Wyślij link albo kod. Widzisz listę uczniów, ich postępy i swoje prywatne notatki. Eksport do CSV.",
+    "f.drip.t":"Lekcje otwierane w czasie","f.drip.d":"Lekcja może otworzyć się od razu, kilka dni po zapisie albo w wybranym dniu.",
+    "f.progress.t":"Postępy i statystyki","f.progress.d":"Kto skończył które lekcje, średnie wyniki quizów, prace do sprawdzenia. Wszystko na jednym ekranie.",
+    "f.cert.t":"Certyfikaty","f.cert.d":"Po ukończeniu kursu uczeń pobiera certyfikat w PDF z numerem, który każdy może sprawdzić online.",
+    "f.disc.t":"Pytania pod lekcją","f.disc.d":"Uczniowie zadają pytania pod każdą lekcją, a Ty odpowiadasz w jednym miejscu.",
+    "f.cal.t":"Kalendarz lekcji na żywo","f.cal.d":"Zaplanuj lekcje z linkiem do Meet lub Zooma, także co tydzień. Uczniowie widzą je u siebie i dodają do kalendarza.",
+    "f.page.t":"Strona kursu i nauczyciela","f.page.d":"Publiczna strona kursu z darmowymi lekcjami na próbę i Twoja strona z listą kursów.",
+    "f.export.t":"PDF, Word i PowerPoint","f.export.d":"Każdą lekcję pobierzesz jako kartę pracy, wersję dla nauczyciela albo slajdy do Canvy.",
+    "stu.h2":"A uczeń ma wszystko w jednym miejscu.",
+    "stu.sub":"Lekcje po kolei, quizy z wynikiem, prace domowe z Twoją oceną, lekcje na żywo i certyfikat na koniec. Działa na telefonie.",
+    "how.h2":"Trzy kroki. Około dwóch minut.",
+    "how.sub":"Bez szablonów do uzupełniania i bez kopiowania między programami.",
+    "how.s1.t":"Wybierz kolory","how.s1.d":"Każdy kolor to część lekcji. Zostaw te, których potrzebujesz, albo dodaj własny, na przykład wymowę.",
+    "how.s2.t":"Dodaj tekst lub plik","how.s2.d":"Wklej artykuł, wgraj PDF lub Word do 50 MB albo dodaj film z YouTube razem z transkrypcją.",
+    "how.s3.t":"Maluj i udostępnij","how.s3.d":"Po chwili masz gotową lekcję. Przemaluj dowolną część, pobierz ją, poprowadź ze slajdów albo dodaj do kursu dla uczniów.",
+    "founder.q":"„Jestem lektorem angielskiego z Rzeszowa. Zbudowałem to narzędzie, bo miałem dość planowania lekcji do północy. Testuję je na własnych zajęciach i chcę, żeby oszczędzało czas także Tobie.”",
+    "founder.role":", lektor angielskiego, Rzeszów",
+    "build.h2":"Chcesz nauczyć się tworzyć takie narzędzia z AI?",
+    "build.sub":"Zbudowałem Paint the Lesson sam, z pomocą AI, bez zespołu programistów. Przygotowuję kurs, w którym pokażę krok po kroku, jak to zrobić. Zostaw e-mail, a odezwę się, gdy ruszą zapisy.",
+    "build.label":"Twój e-mail","build.consent":"Zgadzam się na kontakt w sprawie kursu. Mogę wypisać się w każdej chwili.",
+    "build.btn":"Zapisz mnie","build.soon":"Zapisy ruszą wkrótce",
+    "build.badEmail":"Wpisz poprawny adres e-mail.","build.needConsent":"Zaznacz zgodę na kontakt.",
+    "build.opened":"Dokończ zapis w nowej karcie.","build.closed":"Lista zapisów otworzy się za kilka dni. Wróć tu wkrótce.",
+    "faq.h2":"Pytania i odpowiedzi",
+    "faq.q1":"Czy to naprawdę za darmo?","faq.a1":"Tak. Aplikacja jest w fazie testów i wszystkie funkcje są bezpłatne. Nie podajesz karty płatniczej.",
+    "faq.q2":"Po co mi klucz AI?","faq.a2":"Lekcje pisze sztuczna inteligencja. Wklejasz swój klucz raz, w profilu. Klucz Google Gemini jest darmowy i zakładasz go w minutę w Google AI Studio. Możesz też użyć OpenAI lub Claude. Klucz zostaje w Twojej przeglądarce.",
+    "faq.q7":"Jak uczniowie dołączają do kursu?","faq.a7":"Wysyłasz im link albo kod klasy. Uczeń zakłada darmowe konto e-mailem lub przez Google i od razu widzi kurs. Uczniowie nie potrzebują klucza AI.",
+    "faq.q3":"Czy moje lekcje są prywatne?","faq.a3":"Tak. Twoje lekcje, foldery i profil widzisz tylko Ty. Uczniowie widzą wyłącznie kursy, do których dołączyli, i nigdy nie widzą kluczy odpowiedzi ani Twoich notatek.",
+    "faq.q4":"Dla jakich poziomów?","faq.a4":"Od A2 do C2. Najlepiej sprawdza się na lekcjach indywidualnych z dorosłymi, ale możesz ją dopasować do każdego ucznia i grupy.",
+    "faq.q5":"Czy mogę edytować lekcję?","faq.a5":"Tak. Możesz przemalować każdą część, zmienić slajdy, kolory i czcionki oraz pobrać lekcję jako Word, PDF lub plik do Canvy.",
+    "faq.q6":"Z jakich materiałów mogę korzystać?","faq.a6":"Z artykułów, plików PDF i Word do 50 MB oraz filmów z YouTube, jeśli wkleisz ich transkrypcję. Do kursu dodasz też własne pliki, obrazy, filmy i linki.",
+    "faq.q8":"Czy mogę sprzedawać kursy?","faq.a8":"Jeszcze nie. Płatności i automatyczne e-maile są w planach. Na razie kursy są darmowe dla Twoich uczniów, a rozliczasz się z nimi tak jak dotąd.",
+    "final.h2":"Twoja następna lekcja może być gotowa za dwie minuty.",
+    "foot.made":"© 2026 Paint the Lesson. Zrobione w Rzeszowie.","foot.verify":"Sprawdź certyfikat",
+    "foot.small":"Niezależny projekt.",
+    sections:{warm:"Rozgrzewka",vocab:"Słownictwo",reading:"Czytanie",listen:"Słuchanie",discuss:"Dyskusja",practice:"Ćwiczenia",phrases:"Zwroty i idiomy",speaking:"Mówienie",quiz:"Quiz na koniec"},
+    notes:{h:"Notatki dla nauczyciela",t:"Uczeń może mylić *doubtful* z *doubt*. Poćwiczcie formy słowa. Jeśli zostanie czas, poproś, żeby opisał ulicę ze swojego miasta."},
+    colours:n => n===1 ? "kolor" : (n%10>=2 && n%10<=4 && (n%100<12 || n%100>14)) ? "kolory" : "kolorów"
+  },
+  en:{
+    "doc.title":"Paint the Lesson: a ready English lesson in two minutes",
+    "nav.what":"What you get","nav.teach":"Courses","nav.how":"How it works","nav.faq":"Questions","nav.cta":"Try it free","nav.student":"For students",
+    "hero.badge":"Free while in testing",
+    "hero.h1":"Get your Sunday evenings back.",
+    "hero.lead":"Paint the Lesson turns any text into a ready English lesson: warm-up, vocabulary, a reading story, questions, speaking and a quiz. Then turn your lessons into a course for your students, with quizzes, homework and a certificate.",
+    "hero.cta":"Paint your first lesson for free","hero.student":"I'm a student →",
+    "hero.note":"Sign in with email or Google. Lessons are written by AI with your own key; Google Gemini keys are free. No card needed.",
+    "demo.hint":"Tap a colour to remove or add it. Then press the hole in the palette.",
+    "demo.sample":"Sample lesson, level B1",
+    "demo.paint":"Paint","demo.painting":"…","demo.holeTip":"Paint the lesson",
+    "demo.skip":"Click to skip","demo.add":"Click to add",
+    "what.h2":"What you get from one click.",
+    "what.sub":"Real material you can hand to a student straight away.",
+    "what.c1.t":"A story with highlighted words",
+    "what.c1.d":"An original text at the student's level. The lesson's eight words are marked in colour, with synonyms and antonyms listed, so they're easy to talk about.",
+    "what.c2.t":"A worksheet as PDF or Word",
+    "what.c2.d":"A student version with space for name and date and no answers. A teacher version with the answer key and notes.",
+    "what.c3.t":"Slides for Canva",
+    "what.c3.d":"Clean, formal slides you open in Canva or PowerPoint, then teach slide by slide, with speaker notes.",
+    "teach.h2":"Everything you need to teach online.",
+    "teach.sub":"Your lessons become a course. Students join with a class code, and you see who has done what.",
+    "f.courses.t":"Courses and modules","f.courses.d":"Arrange lessons in modules. Add text, YouTube videos, images, files, links and painted lessons.",
+    "f.ai.t":"A course planned by AI","f.ai.d":"Describe the goal and the AI drafts modules and lessons, writes the content, quizzes and homework. You just edit.",
+    "f.quiz.t":"Auto-marked quizzes","f.quiz.d":"One or several right answers, true/false and short answers. Students see their score straight away.",
+    "f.hw.t":"Homework and marking","f.hw.d":"Students send text or a file. You give a mark and feedback, and the AI can suggest corrections.",
+    "f.students.t":"Students and class codes","f.students.d":"Send a link or a code. See your students, their progress and your private notes. Export to CSV.",
+    "f.drip.t":"Lessons that open over time","f.drip.d":"A lesson can open straight away, some days after a student joins, or on a date you choose.",
+    "f.progress.t":"Progress and statistics","f.progress.d":"Who finished which lessons, quiz averages and homework to mark, on one screen.",
+    "f.cert.t":"Certificates","f.cert.d":"When students finish a course they download a PDF certificate with a number anyone can check online.",
+    "f.disc.t":"Questions under each lesson","f.disc.d":"Students ask questions under every lesson, and you answer them all in one place.",
+    "f.cal.t":"A calendar for live lessons","f.cal.d":"Book lessons with a Meet or Zoom link, weekly if you like. Students see them and add them to their calendar.",
+    "f.page.t":"Course and teacher pages","f.page.d":"A public course page with free preview lessons, and your own page listing your courses.",
+    "f.export.t":"PDF, Word and PowerPoint","f.export.d":"Download any lesson as a worksheet, a teacher copy or slides for Canva.",
+    "stu.h2":"And students have everything in one place.",
+    "stu.sub":"Lessons in order, quizzes with scores, homework with your feedback, live lessons and a certificate at the end. Works on a phone.",
+    "how.h2":"Three steps. About two minutes.",
+    "how.sub":"No templates to fill in and no copying between programs.",
+    "how.s1.t":"Choose colours","how.s1.d":"Each colour is part of the lesson. Keep the ones you need, or add your own, such as pronunciation.",
+    "how.s2.t":"Add a text or file","how.s2.d":"Paste an article, upload a PDF or Word file up to 50 MB, or add a YouTube video with its transcript.",
+    "how.s3.t":"Paint and share","how.s3.d":"Moments later your lesson is ready. Repaint any part, download it, teach from the slides, or add it to a course for your students.",
+    "founder.q":"“I'm an English tutor from Rzeszów. I built this tool because I was tired of planning lessons until midnight. I test it in my own classes, and I want it to save you time too.”",
+    "founder.role":", English tutor, Rzeszów",
+    "build.h2":"Want to learn to build tools like this with AI?",
+    "build.sub":"I built Paint the Lesson myself, with AI, without a team of developers. I'm preparing a course that shows how, step by step. Leave your email and I'll get in touch when sign-ups open.",
+    "build.label":"Your email","build.consent":"I agree to be contacted about the course. I can unsubscribe at any time.",
+    "build.btn":"Sign me up","build.soon":"Sign-ups opening soon",
+    "build.badEmail":"Enter a valid email address.","build.needConsent":"Tick the box to agree to be contacted.",
+    "build.opened":"Finish signing up in the new tab.","build.closed":"The sign-up list opens in a few days. Check back soon.",
+    "faq.h2":"Questions and answers",
+    "faq.q1":"Is it really free?","faq.a1":"Yes. The app is in testing and every feature is free. No payment card needed.",
+    "faq.q2":"Why do I need an AI key?","faq.a2":"The lessons are written by AI. You paste your own key once, in your profile. Google Gemini keys are free and take a minute to make in Google AI Studio. OpenAI and Claude keys work too. The key stays in your browser.",
+    "faq.q7":"How do students join a course?","faq.a7":"Send them a link or the class code. They make a free account with email or Google and see the course straight away. Students don't need an AI key.",
+    "faq.q3":"Are my lessons private?","faq.a3":"Yes. Only you can see your lessons, folders and profile. Students see only the courses they joined, and never the answer keys or your notes.",
+    "faq.q4":"Which levels does it cover?","faq.a4":"A2 to C2. It works best for one-to-one lessons with adults, but you can adapt it to any student or group.",
+    "faq.q5":"Can I edit a lesson?","faq.a5":"Yes. Repaint any part, change slides, colours and fonts, and download the lesson as Word, PDF or a file for Canva.",
+    "faq.q6":"What material can I use?","faq.a6":"Articles, PDF and Word files up to 50 MB, and YouTube videos if you paste their transcript. In courses you can also add your own files, images, videos and links.",
+    "faq.q8":"Can I sell courses?","faq.a8":"Not yet. Payments and automatic emails are planned. For now courses are free for your students, and you arrange payment with them as you do today.",
+    "final.h2":"Your next lesson could be ready in two minutes.",
+    "foot.made":"© 2026 Paint the Lesson. Made in Rzeszów.","foot.verify":"Check a certificate",
+    "foot.small":"An independent project.",
+    sections:{warm:"Warm-up",vocab:"Key vocabulary",reading:"Reading",listen:"Listening",discuss:"Discussion",practice:"Practice",phrases:"Phrases & idioms",speaking:"Speaking task",quiz:"Wrap-up quiz"},
+    notes:{h:"Teacher notes",t:"The student may confuse *doubtful* with *doubt*. Practise the word forms. If time remains, ask them to describe a street in their own town."},
+    colours:n => n===1 ? "colour" : "colours"
+  }
+};
+
+const ICONS = {
+  warm:'<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>',
+  vocab:'<path d="M3 18l4-11 4 11M4.5 14h5"/><path d="M14 11.5c1-1 4-1.3 4.5.5v6M18.5 14.5c-2.5-.5-5 0-5 2s3 2 5 0"/>',
+  reading:'<path d="M3 6c3-1.5 6-1.5 9 0v13c-3-1.5-6-1.5-9 0zM12 6c3-1.5 6-1.5 9 0v13c-3-1.5-6-1.5-9 0z"/>',
+  listen:'<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><path d="M4 15h3v5H5.5A1.5 1.5 0 0 1 4 18.5zM20 15h-3v5h1.5a1.5 1.5 0 0 0 1.5-1.5z"/>',
+  discuss:'<path d="M3 5h11v7H8l-3 3v-3H3z"/><path d="M17 9h4v7h-2v3l-3-3h-6v-2"/>',
+  practice:'<path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/>',
+  phrases:'<path d="M5 12c0-3 1.6-5 4-5.5v2C8 9 7.3 10 7.3 11.3H9.5V17H5zM13.5 12c0-3 1.6-5 4-5.5v2c-1 .5-1.7 1.5-1.7 2.8H18V17h-4.5z"/>',
+  speaking:'<path d="M9 5a3 3 0 0 1 6 0v6a3 3 0 0 1-6 0z"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3M9 20h6"/>',
+  quiz:'<path d="M4 4h16v16H4z"/><path d="M8 12l3 3 5-6"/>'
+};
+const FEATS = [
+  ["courses","#A9CFEA",'<path d="M4 5h7v14H4zM13 5h7v6h-7zM13 13h7v6h-7z"/>'],
+  ["ai","#F2B33D",'<path d="M12 3l1.8 4.6L18 9l-4.2 1.4L12 15l-1.8-4.6L6 9l4.2-1.4z"/><path d="M18 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/>'],
+  ["quiz","#B9D8B0",'<path d="M4 4h16v16H4z"/><path d="M8 12l3 3 5-6"/>'],
+  ["hw","#E89AA6",'<path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/>'],
+  ["students","#C9B6E4",'<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.3c3 .2 5.5 2.6 5.5 5.7"/>'],
+  ["drip","#8CCFC4",'<circle cx="12" cy="13" r="7"/><path d="M12 9v4l3 2M9 3h6"/>'],
+  ["progress","#F08A6B",'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'],
+  ["cert","#EFE2BF",'<circle cx="12" cy="9" r="5"/><path d="M9 13.5L7.5 21l4.5-2.5 4.5 2.5-1.5-7.5"/>'],
+  ["disc","#A9CFEA",'<path d="M3 5h11v7H8l-3 3v-3H3z"/><path d="M17 9h4v7h-2v3l-3-3h-6v-2"/>'],
+  ["cal","#F2B33D",'<path d="M4 6h16v14H4zM4 10h16M9 3v5M15 3v5"/>'],
+  ["page","#B9D8B0",'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>'],
+  ["export","#E89AA6",'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>']
+];
+const SECTIONS = [
+  {k:"warm", at:[88,272], w:8, paint:"#F2B33D", head:"Warm-up", body:"<ol><li>Where do you usually buy coffee, and why?</li><li>Would you pay more for a local brand?</li></ol>"},
+  {k:"vocab", at:[86,174], w:10, paint:"#E89AA6", head:"Key vocabulary", body:"<ol><li><strong>foot traffic</strong> (n) people walking past a place</li><li><strong>doubtful</strong> (adj) not sure something will work</li><li><strong>compromise on</strong> (v) accept lower quality</li></ol><p><em>…and 5 more words, each used again in the story.</em></p>"},
+  {k:"reading", at:[148,98], w:15, paint:"#B9D8B0", head:"Reading", body:"<p><strong>The Coffee Street</strong></p><p>When Anna opened her café, the street was empty. There was almost no <mark class=\"vk\">foot traffic</mark>, and her friends were <mark class=\"vk\">doubtful</mark>. She never <mark class=\"vk\">compromised on</mark> quality, and slowly the street <mark class=\"vk\">came alive</mark>.</p><p>1. Anna's friends believed in her plan. <em>True / False / Not Given</em></p>"},
+  {k:"listen", at:[194,228], w:15, paint:"#D9A066", off:true, head:"Listening", body:"<p>Video: youtube.com/watch?v=…</p><p><strong>While you watch</strong></p><ol><li>Why did the owner choose this street?<br>a) cheap rent &nbsp; b) old friends &nbsp; c) a gap in the market</li></ol>"},
+  {k:"discuss", at:[244,68], w:15, paint:"#A9CFEA", head:"Discussion", body:"<ol><li>Was Anna right to charge more than the chain store?</li><li>What makes a street feel alive to you?</li></ol>"},
+  {k:"practice", at:[350,66], w:15, paint:"#C9B6E4", head:"Practice", body:"<ol><li>The new shop brought more ________ to the area.</li><li>I'm ________ that the plan will work.</li></ol>"},
+  {k:"phrases", at:[452,98], w:10, paint:"#F08A6B", head:"Phrases & idioms", body:"<ul><li><strong>go the extra mile</strong> do more than people expect</li><li><strong>word of mouth</strong> news passed from person to person</li></ul>"},
+  {k:"speaking", at:[524,178], w:12, paint:"#8CCFC4", head:"Speaking task", body:"<p>Role-play: you are Anna. Your partner is a bank manager. Convince them to give you a loan for a second café.</p>"},
+  {k:"quiz", at:[182,346], w:5, paint:"#EFE2BF", head:"Wrap-up quiz", body:"<ol><li>What does <em>doubtful</em> mean?</li><li>Give one synonym for <em>came alive</em>.</li></ol>"}
+];
+
+let lang = "pl";
+const on = new Set(SECTIONS.filter(s => !s.off).map(s => s.k));
+const $ = id => document.getElementById(id);
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function md(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/\*([^*]+)\*/g,"<em>$1</em>"); }
+function minutes(){
+  const sel = SECTIONS.filter(s => on.has(s.k)), tot = sel.reduce((a,s) => a + s.w, 0), m = {}; let sum = 0;
+  sel.forEach(s => { m[s.k] = Math.max(3, Math.round(s.w / tot * 90)); sum += m[s.k]; });
+  if (sel.length) { const big = sel.reduce((a,s) => s.w > a.w ? s : a); m[big.k] += 90 - sum; }
+  return m;
+}
+
+const pal = $("palette");
+SECTIONS.forEach((s, i) => {
+  const b = document.createElement("button");
+  b.className = "well"; b.dataset.k = s.k;
+  b.style.left = (s.at[0] / 600 * 100) + "%"; b.style.top = (s.at[1] / 440 * 100) + "%";
+  b.style.setProperty("--paint", s.paint); b.style.setProperty("--n", i);
+  b.innerHTML = `<span class="cup"></span><span class="scoop"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[s.k]}</svg></span>`;
+  b.addEventListener("click", () => { if (on.has(s.k)) { if (on.size > 1) on.delete(s.k); } else on.add(s.k); refresh(); });
+  pal.insertBefore(b, $("hole"));
+});
+setTimeout(() => pal.classList.remove("intro"), 1500);
+
+function refresh(){
+  const m = minutes(), L = T[lang];
+  pal.querySelectorAll(".well").forEach(b => {
+    const k = b.dataset.k, isOn = on.has(k), name = L.sections[k];
+    b.setAttribute("aria-pressed", String(isOn));
+    b.setAttribute("aria-label", isOn ? `${name}, ${m[k]} min` : name);
+    b.dataset.tip = isOn ? `${name}, ${m[k]} min\n${L["demo.skip"]}` : `${name}\n${L["demo.add"]}`;
+  });
+  $("stInfo").textContent = `B1, ${on.size} ${L.colours(on.size)}`;
+}
+
+let painting = false, timers = [];
+function paint(){
+  if (painting) return;
+  painting = true; $("hole").disabled = true; $("hole").textContent = T[lang]["demo.painting"];
+  timers.forEach(clearTimeout); timers = [];
+  const out = $("lesson"), sheet = $("sheet"), m = minutes(), L = T[lang];
+  out.innerHTML = "";
+  const add = (html, cls, style) => {
+    const d = document.createElement("div"); if (cls) d.className = cls; if (style) d.setAttribute("style", style);
+    d.innerHTML = html; if (!reduce) d.classList.add("painted"); out.appendChild(d);
+    sheet.scrollTo({ top: sheet.scrollHeight, behavior: reduce ? "auto" : "smooth" });
+  };
+  const steps = [() => add(`<p class="title">The Street That Woke Up</p><p class="aim">Aim: read a story about a small business and discuss its key words.</p>`)];
+  SECTIONS.filter(s => on.has(s.k)).forEach(s => steps.push(() => add(`<h3>${s.head} (${m[s.k]} min)</h3>${s.body}`, "part", `--paint:${s.paint}`)));
+  steps.push(() => add(`<h3>${L.notes.h}</h3><p>${md(L.notes.t)}</p>`, "part teacher", "--paint:#D9D5CC"));
+  const gap = reduce ? 0 : 420;
+  steps.forEach((fn, i) => timers.push(setTimeout(fn, i * gap)));
+  timers.push(setTimeout(() => { painting = false; $("hole").disabled = false; $("hole").textContent = T[lang]["demo.paint"]; sheet.scrollTo({ top:0, behavior: reduce ? "auto" : "smooth" }); }, steps.length * gap + 900));
+}
+$("hole").addEventListener("click", paint);
+
+(function(){
+  const sl = [...document.querySelectorAll("#slides .sl")]; let i = 0, paused = false;
+  if (reduce || sl.length < 2) return;
+  $("slides").addEventListener("mouseenter", () => paused = true);
+  $("slides").addEventListener("mouseleave", () => paused = false);
+  setInterval(() => {
+    if (paused || document.hidden) return;
+    const cur = sl[i]; i = (i + 1) % sl.length; const nx = sl[i];
+    cur.classList.remove("on"); cur.classList.add("out");
+    nx.classList.remove("out"); nx.style.transition = "none"; nx.style.transform = "translateX(12%)"; nx.offsetWidth;
+    nx.style.transition = ""; nx.style.transform = ""; nx.classList.add("on");
+    setTimeout(() => cur.classList.remove("out"), 520);
+  }, 3200);
+})();
+
+function drawFeats(){
+  const L = T[lang];
+  $("feats").innerHTML = FEATS.map(([k, c, svg]) => `<li class="paper feat"><div class="dot" style="--paint:${c}"><svg viewBox="0 0 24 24" aria-hidden="true">${svg}</svg></div><h3>${L["f." + k + ".t"]}</h3><p>${L["f." + k + ".d"]}</p></li>`).join("");
+}
+
+function applyLang(l, save){
+  lang = l; const L = T[l];
+  document.documentElement.lang = l; document.title = L["doc.title"];
+  document.querySelectorAll("[data-i]").forEach(el => { const v = L[el.dataset.i]; if (typeof v === "string") el.textContent = v; });
+  $("lgPl").setAttribute("aria-pressed", String(l === "pl")); $("lgEn").setAttribute("aria-pressed", String(l === "en"));
+  $("hole").dataset.tip = L["demo.holeTip"]; $("hole").setAttribute("aria-label", L["demo.holeTip"]);
+  if (!painting) $("hole").textContent = L["demo.paint"];
+  $("signBtn").textContent = FORM_URL ? L["build.btn"] : L["build.soon"];
+  $("formMsg").textContent = "";
+  drawFeats(); refresh();
+  if (save) { try { localStorage.setItem("ptl:lang", l); } catch(e) {} }
+  if ($("lesson").childElementCount && !painting) paint();
+}
+$("lgPl").addEventListener("click", () => applyLang("pl", true));
+$("lgEn").addEventListener("click", () => applyLang("en", true));
+
+$("signup").addEventListener("submit", e => {
+  e.preventDefault();
+  const L = T[lang], email = $("email").value.trim(), msg = $("formMsg");
+  msg.classList.remove("err");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg.textContent = L["build.badEmail"]; msg.classList.add("err"); $("email").focus(); return; }
+  if (!$("consent").checked) { msg.textContent = L["build.needConsent"]; msg.classList.add("err"); return; }
+  if (!FORM_URL) { msg.textContent = L["build.closed"]; return; }
+  const u = FORM_URL + (FORM_URL.includes("?") ? "&" : "?") + "email=" + encodeURIComponent(email);
+  window.open(u, "_blank", "noopener"); msg.textContent = L["build.opened"];
+});
+
+let start = "pl";
+try { const saved = localStorage.getItem("ptl:lang"); if (saved === "pl" || saved === "en") start = saved; else if (!/^pl\b/i.test(navigator.language || "pl")) start = "en"; } catch(e) {}
+applyLang(start, false);
+setTimeout(paint, reduce ? 0 : 1300);
+</script>
+</body>
+</html>

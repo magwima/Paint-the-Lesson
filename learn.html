@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Paint the Lesson: my courses</title>
+<meta name="description" content="Your English courses: lessons, quizzes, homework and certificates.">
+<meta name="theme-color" content="#E6E3DE">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,400;1,7..72,600;1,7..72,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/ptl.css">
+<script type="module" src="js/learn.js"></script>
+</head>
+<body class="learn">
+<a class="skip" href="#lMain">Skip to content</a>
+<div class="gate" id="lGate">
+  <div class="gate-card paper" id="authMount"><p class="brand">Paint the Lesson</p><p class="gate-lead">Opening your courses…</p></div>
+</div>
+<div class="wrap" id="lApp" hidden>
+  <nav class="topnav" aria-label="Main">
+    <a class="brand" href="#"><i class="logo-dot" aria-hidden="true"></i>Paint the Lesson</a>
+    <span class="sep"></span>
+    <a class="tool" href="#">My courses</a>
+    <a class="tool" id="lTeach" href="app.html" hidden>Teacher studio</a>
+    <button class="acct-chip" id="lAcct" type="button"><span id="lName"></span></button>
+  </nav>
+  <main id="lMain"></main>
+</div>
+</body>
+</html>
